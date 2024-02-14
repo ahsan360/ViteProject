@@ -1,75 +1,34 @@
 import './style.css'
-import { setupCounter } from './counter.ts'
+import { StopWatch } from './class.ts'
 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
-  <div>
-    <div class="card">
-      <button id="Start" type="button">Start</button>
-      <p id="str"></p>
-    </div>
-    <div class="card">
-      <button id="Stop" type="button">Stop</button>
-      <p id="stop"></p>
-    </div>
-    <div class="card">
-      <button id="Duration" type="button">Duration</button>
-      <p id="duration"></p>
-    </div>
-    <div class="card">
-    <button id="Reset" type="button">Reset</button>
-    <p id="reset"></p>
+<div class="main">
+  <h1>Stop Watch</h1>
+  <div class="card">
+    <button id="Start" type="button">Start</button>
+    <p id="str"></p>
   </div>
+  <div class="card">
+    <button id="Stop" type="button">Stop</button>
+    <p id="stop"></p>
   </div>
+  <div class="card">
+    <button id="Duration" type="button">Duration</button>
+    <p id="duration"></p>
+  </div>
+  <div class="card">
+  <button id="Reset" type="button">Reset</button>
+  <p id="reset"></p>
+</div>
+</div>
 `
 try {
-  class StopWatch {
-    private startTime: Date | null = null;
-    private endTime: number | null = null;
-    private duration: number = 0;
-    private isRunning: boolean = false;
-
-    start(): string {
-      if (this.isRunning) {
-        return `Already Running`;
-      }
-      this.startTime = new Date();
-      this.isRunning = true;
-      return `Started`;
-    }
-
-    stop(): string {
-      if (!this.isRunning) {
-        return `Not Running`;
-      }
-      this.endTime = new Date().getTime();
-      this.duration += (this.endTime - (this.startTime?.getTime() || 0)) / 1000;
-      this.startTime = null;
-      this.isRunning = false;
-      return `Stopped`;
-    }
-
-    reset(): void {
-      this.startTime = null;
-      this.endTime = null;
-      this.duration = 0;
-      this.isRunning = false;
-    }
-
-    getDuration(): number {
-      if (this.isRunning) {
-        this.endTime = new Date().getTime();
-        let cur = (this.endTime - (this.startTime?.getTime() || 0)) / 1000;
-        return this.duration+cur;
-      }
-      return this.duration;
-    }
-  }
 
   let stopwatch = new StopWatch();
 
   const startButton = document.querySelector<HTMLButtonElement>('#Start')!;
   startButton.addEventListener('click', () => {
-    const status = stopwatch.start();
+    const status: string = stopwatch.start();
     let statusElement = document.getElementById('str');
     if (statusElement)
       statusElement.textContent = status;
@@ -107,6 +66,44 @@ try {
       if (statusElement) statusElement.textContent = ''
     }, 2000)
   });
+  //----------------------TODO LIST-----------------------------------
+  let stringArray2: Array<string> = [];
+  const textInput = document.getElementById('textInput') as HTMLInputElement;
+  const submitButton = document.getElementById('submitButton');
+  const inputP = document.querySelector<HTMLParagraphElement>('.inputP');
+
+  function updateOutput() {
+      let outputText = '';
+      for (let i: number = 0; i < stringArray2.length; i++) {
+          outputText += `${i + 1} : ${stringArray2[i]} <button class="deleteButton" data-index="${i}">Delete</button><br> `;
+      }
+      inputP!.innerHTML = outputText;
+      const deleteButtons = document.querySelectorAll('.deleteButton');
+      deleteButtons.forEach(button => {
+          button.addEventListener('click', (event) => {
+              const indexToRemove = parseInt((event.currentTarget as HTMLButtonElement).getAttribute('data-index') || '0', 10);
+              if (!isNaN(indexToRemove) && indexToRemove >= 0 && indexToRemove < stringArray2.length) {
+                  stringArray2.splice(indexToRemove, 1);
+                  updateOutput();
+              }
+          });
+      });
+  }
+
+  if (submitButton) {
+      submitButton.addEventListener('click', () => {
+          const inputValue = textInput.value.trim();
+          if (inputValue !== '') {
+              stringArray2.push(inputValue);
+              updateOutput();
+              textInput.value = '';
+          }
+      });
+  }
+
+  updateOutput(); 
+   
+  
 }
 catch (e) {
   console.log(e)
